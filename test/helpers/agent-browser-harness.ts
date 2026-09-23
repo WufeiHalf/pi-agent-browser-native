@@ -478,6 +478,7 @@ export function createExtensionHarness(options: {
 	onBusEvent?: (channel: string, request: unknown) => void;
 	onAppendEntry?: (customType: string, data: unknown) => void;
 	projectTrusted?: boolean;
+	onHostReady?: NonNullable<Parameters<typeof agentBrowserExtension>[1]>["onHostReady"];
 	prompt?: string;
 	sessionDir?: string;
 	sessionFile?: string;
@@ -515,7 +516,7 @@ export function createExtensionHarness(options: {
 			activeTools.push(registeredTool.name);
 		},
 	};
-	agentBrowserExtension(pi as ExtensionAPI);
+	agentBrowserExtension(pi as ExtensionAPI, { onHostReady: options.onHostReady });
 
 	const registeredTool = registeredTools.get("agent_browser");
 	assert.ok(registeredTool, "expected the extension to register the agent_browser tool");

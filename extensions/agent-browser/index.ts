@@ -937,9 +937,21 @@ function shouldIncludeProjectConfig(ctx: { isProjectTrusted?: () => boolean } | 
 	return ctx?.isProjectTrusted?.() ?? true;
 }
 
+export interface NativeBrowserHost {
+	execute(input: {
+		toolCallId: string;
+		args: string[];
+		signal: AbortSignal | undefined;
+		ctx: ExtensionContext;
+	}): Promise<AgentBrowserToolResult>;
+}
+
 export default function agentBrowserExtension(
 	pi: ExtensionAPI,
-	{ beforeExecute }: { beforeExecute?: (toolCallId: string, ctx: ExtensionContext) => Promise<void> } = {},
+	{ beforeExecute, onHostReady }: {
+		beforeExecute?: (toolCallId: string, ctx: ExtensionContext) => Promise<void>;
+		onHostReady?: (host: NativeBrowserHost) => void;
+	} = {},
 ) {
 	const ephemeralSessionSeed = createEphemeralSessionSeed();
 	const agentBrowserConfig = loadAgentBrowserConfigSync({
@@ -2112,4 +2124,13 @@ export default function agentBrowserExtension(
 	});
 
 	registerWebSearchToolIfAvailable(agentBrowserConfig);
+	onHostReady?.({
+		async execute({ toolCallId, args, signal, ctx }) {
+			const params = { args };
+			let result: AgentBrowserToolResult;
+			try { result = await agentBrowserTool.execute(toolCallId, params, signal, undefined, ctx); }
+			catch (error) { result = browserExecutionFailure(error, signal); }
+			return finalizeObservation(result, params, ctx);
+		},
+	});
 }
