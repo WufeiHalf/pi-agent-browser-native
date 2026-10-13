@@ -229,7 +229,10 @@ function getMessageText(content: unknown): string {
 		.join("\n");
 }
 
-export function shouldAppendBrowserSystemPrompt(prompt: string): boolean {
+export function shouldAppendBrowserSystemPrompt(prompt: unknown): boolean {
+	if (typeof prompt !== "string") {
+		return false;
+	}
 	const normalizedPrompt = prompt.trim();
 	if (normalizedPrompt.length === 0) {
 		return false;

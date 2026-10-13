@@ -316,6 +316,9 @@ test("shouldAppendBrowserSystemPrompt only targets clearly browser-oriented prom
 	assert.equal(shouldAppendBrowserSystemPrompt("Please review browser compatibility docs."), false);
 	assert.equal(shouldAppendBrowserSystemPrompt("Summarize the article at https://example.com/blog/post for the changelog."), false);
 	assert.equal(shouldAppendBrowserSystemPrompt("Please review the repository architecture."), false);
+	assert.equal(shouldAppendBrowserSystemPrompt(undefined), false);
+	assert.equal(shouldAppendBrowserSystemPrompt(null), false);
+	assert.equal(shouldAppendBrowserSystemPrompt(""), false);
 });
 
 test("web-search prompt guidance warns about anti-bot search form automation", () => {
